@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hand.user.mapper.HapDemoMapper">
+    <resultMap id="BaseResultMap" type="com.hand.user.dto.HapDemo">
+        <result column="DEMO_ID" property="demoId" jdbcType="DECIMAL" />
+        <result column="NAME" property="name" jdbcType="VARCHAR" />
+        <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+        <result column="PHONE" property="phone" jdbcType="VARCHAR" />
+        <result column="START_ACTIVE_DATE" property="startActiveDate" jdbcType="DATE" />
+        <result column="END_ACTIVE_DATE" property="endActiveDate" jdbcType="DATE" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="employeeCode" property="employeeCode" jdbcType="VARCHAR" />
+        <result column="userName" property="userName" jdbcType="VARCHAR" />
+
+
+    </resultMap>
+<select id="selectAllDemo" resultMap="BaseResultMap" parameterType="com.hand.user.dto.HapDemo">
+
+    SELECT
+    h.DEMO_ID,
+    h.NAME,
+    h.EMAIL,
+    h.PHONE,
+    h.START_ACTIVE_DATE,
+    h.END_ACTIVE_DATE,
+    h.`STATUS`,
+    (SELECT `EMPLOYEE_CODE`  FROM `hr_employee` WHERE h.`NAME`=`NAME`  ) `employeeCode`
+    FROM `y_hap_demo` AS h
+<where>
+    <if test="name != null and name !=''  ">
+     `NAME`=#{name}
+    </if>
+    <if test="email != null and email !=''">
+       and EMAIL like concat("%",#{email},"%")
+    </if>
+    <if test="phone != null and phone != ''">
+       and PHONE like concat("%",#{phone},"%")
+    </if>
+
+</where>
+
+
+
+</select>
+
+</mapper>

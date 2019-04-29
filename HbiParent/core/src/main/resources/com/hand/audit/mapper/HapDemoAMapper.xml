@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hand.audit.mapper.HapDemoAMapper">
+    <!-- 审计查询公共字段  A: 审计表 B：employee表-->
+    <sql id="common">
+        SELECT
+        A.AUDIT_ID,
+        A.AUDIT_TIMESTAMP,
+        A.AUDIT_TRANSACTION_TYPE,
+        A.LANG,
+        A.OBJECT_VERSION_NUMBER,
+    </sql>
+    <!-- 用户审计 -->
+    <sql id="productPart">
+    A.DEMO_ID,
+    A.NAME,
+    A.EMAIL,
+    A.PHONE,
+    A.START_ACTIVE_DATE,
+    A.END_ACTIVE_DATE,
+    A.`STATUS`,
+    (SELECT `EMPLOYEE_CODE`  FROM `hr_employee` B WHERE A.`NAME`=B.`NAME`  ) `employeeCode`
+    FROM `y_hap_demo_a` AS A
+      where
+    </sql>
+    <select id="selectAuditProduct" resultType="java.util.Map"   parameterType="com.hand.audit.dto.HapDemoA" >
+        <include refid="common" />
+        <include refid="productPart" />
+         A.AUDIT_TAG = 1
+        ORDER BY
+        A.AUDIT_TIMESTAMP DESC
+
+    </select>
+    <select id="selectAuditProductDetail" parameterType="com.hand.audit.dto.HapDemoA" resultType="java.util.Map" >
+        <include refid="common" />
+        <include refid="productPart" />
+         A.DEMO_ID = #{demoId}
+        ORDER BY A.AUDIT_TIMESTAMP DESC
+    </select>
+
+
+
+</mapper>

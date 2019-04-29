@@ -1,0 +1,161 @@
+<#include "../include/header.html">
+
+<body>
+
+<script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<script src="${base.contextPath}/common/code?unitCategoryData=HR.EMPLOYEE_GENDER" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?unitCategoryData=HR.EMPLOYEE_STATUS"
+        type="text/javascript"></script>
+<script type="text/javascript">
+
+    debugger;
+
+    var employeeCode = "${Session.employeeCode!0}";
+    var viewModel = kendo.observable({
+        model: {
+            enabledFlag:"Y",
+            isEnabled: <#if RequestParameters.businessKey??> false <#else> true </#if>,
+    },
+    closeWin: function(e){
+        window.parent.$("#dialog").data("kendoWindow").close();
+    }
+    });
+
+
+
+    var activityId = '${RequestParameters.businessKey!0}';
+
+
+
+</script>
+<div id="newWin" style="display: none"></div>
+<div id="page-content"  style="overflow:hidden">
+    <form id="mainform"  class="form-horizontal" method="post" enctype="application/json;charset=UTF-8">
+
+        <div class="panel-body" style="padding: 5px">
+            <div class="row">
+                <div class="form-group col-sm-4">
+                    <label class="control-label col-sm-4">活动名称</label>
+                    <div class="col-sm-8">
+                        <input id="eventName" class="k-textbox" data-bind="disabled: isNameDisabled,value:model.eventName" style="width: 100%;background-color: #ededed;" disabled="disabled" />
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label col-sm-4">创建人</label>
+                    <div class="col-sm-8">
+                        <input id="createdByBy" class="k-textbox" data-bind="value:model.createdByBy" style="width: 100%;" />
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label col-sm-4">创建时间</label>
+                    <div class="col-sm-8">
+                        <input id="createTime" class="k-textbox" data-bind="disabled: isNameDisabled,value:model.createTime" style="width: 100%;background-color: #ededed;" disabled="disabled" />
+                    </div>
+                    <script>
+                        var createTime = $("#createTime").kendoDatePicker({
+                            format:"yyyy-MM-dd"
+                        }).data("kendoDatetimePicker");
+                    </script>
+                </div>
+            </div>
+
+
+            <div class="row" >
+                <div class="form-group col-sm-4">
+                    <label class="control-label col-sm-4">发布日期</label>
+                    <div class="col-sm-8">
+                        <input id="releaseDate" data-bind="value:model.releaseDate" style="width: 100%;background-color: #ededed;"  />
+                    </div>
+                    <script>
+                        var releaseDate = $("#releaseDate").kendoDatePicker({
+                            format:"yyyy-MM-dd"
+                        }).data("kendoDatetimePicker");
+                    </script>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label col-sm-4">结束发布日</label>
+                    <div class="col-sm-8">
+                        <input id="releaseEndDate" data-bind="value:model.releaseEndDate" style="width: 100%;background-color: #ededed;"  />
+                    </div>
+                    <script>
+                        var releaseEndDate = $("#releaseEndDate").kendoDatePicker({
+                            format:"yyyy-MM-dd"
+                        }).data("kendoDatetimePicker");
+                    </script>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label col-sm-4">管理员工</label>
+                    <div class="col-sm-8">
+                        <input id="privilege" class="k-textbox" data-bind="value:model.privilege" style="width: 100%;background-color: #ededed;"  />
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row" >
+                <div class="form-group col-sm-4">
+                    <label class="control-label col-sm-4">活动内容</label>
+                    <div class="col-sm-8">
+                        <input id="activities" class="k-textbox" data-bind="value:model.activities" style="width: 100%;background-color: #ededed;"  />
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label col-sm-4">活动金额</label>
+                    <div class="col-sm-8">
+                        <input id="activityAmount" class="k-textbox" data-bind="value:model.activityAmount" style="width: 100%;background-color: #ededed;"  />
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    kendo.bind($('#mainBottom'),viewModel);
+    kendo.bind($('#mainform'), viewModel);
+
+    debugger;
+    if (activityId!=0) {
+        $.ajax({
+
+            url: '${base.contextPath}/yfs/rent/activity/query?activityId='+activityId,
+            success: function (args) {
+                var a0 = args.rows[0] || {};
+                for (var k in a0) {
+
+                    viewModel.model.set(k, a0[k]);
+
+                    /* isNotEmpty(viewModel.model.effectiveStartDate) ? effectiveEndDate.min(viewModel.model.effectiveStartDate) : "";
+                    isNotEmpty(viewModel.model.effectiveEndDate) ? effectiveStartDate.max(viewModel.model.effectiveEndDate) : ""; */
+                }
+
+            }
+        });
+    }else{
+
+        viewModel.set("isNameDisabled", true);
+
+    }
+
+
+    $("#effectiveStartDate").kendoDatePicker({
+        animation: false,
+        //value : viewModel.model.startDate,
+        format: "{0: yyyy-MM-dd}"
+    });
+
+
+
+
+    $("#gender").kendoComboBox({
+        dataSource: {
+            data: unitCategoryData
+        },
+        valuePrimitive: true,
+        dataTextField: "meaning",
+        dataValueField: "value"
+    });
+</script>
+</body>
+</html>

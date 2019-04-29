@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hand.yfsrole.mapper.YUserRoleMapper">
+    <resultMap id="BaseResultMap" type="com.hand.yfsrole.dto.YUserRole">
+        <result column="SUR_ID" property="surId" jdbcType="DECIMAL" />
+        <result column="activity_id" property="activityId" jdbcType="DECIMAL" />
+        <result column="ROLE_ID" property="roleId" jdbcType="DECIMAL" />
+    </resultMap>
+
+
+</mapper>

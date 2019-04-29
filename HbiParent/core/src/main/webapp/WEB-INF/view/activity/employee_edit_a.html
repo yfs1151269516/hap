@@ -1,0 +1,218 @@
+<#--
+* description:
+* version: 2.0
+* author:yuliao.chen@hand-china.com
+* version: 3.0
+* author:qiang.zeng@hand-china.com
+-->
+<#include "../include/header.html">
+
+<body>
+<script src="${base.contextPath}/common/code?employeeStatusData=HR.EMPLOYEE_STATUS" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?employeeGenderData=HR.EMPLOYEE_GENDER" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?employeeCertificateTypeData=HR.CERTIFICATE_TYPE" type="text/javascript"></script>
+<script type="text/javascript">
+
+</script>
+<script type="text/javascript">
+	debugger
+    //var isedit = '${RequestParameters.employeeId!0}' == '';
+    var employeeId = '${RequestParameters.employeeId!0}';
+    var activeStatusA = '${RequestParameters.activeStatus!0}';
+    if("new"!=activeStatusA && "Audit_rejection" != activeStatusA && '0'!=activeStatusA){
+        activeStatusA=false;
+    }else {
+        activeStatusA=true;
+    }
+	debugger
+    var viewModel = kendo.observable({
+        model: {
+            enabledFlag:"Y",
+            isEnabled: <#if RequestParameters.employeeId??> false <#else> true </#if>,
+            isStatus: activeStatusA,
+    },
+    source:employeeGenderData,
+        save: function(e){
+            debugger
+        var data= viewModel.model.toJSON();
+        if(data.activityId){
+            data.__status = "update";
+        }else{
+            data.activeStatus="new";
+            data.__status = "add";
+         /*   data.enabledFlag = $("#checkbox").data("kendoCheckbox").value();*/
+        }
+        var validator = $("#mainform").data("kendoValidator");
+        if (validator.validate()) {
+            Hap.request({
+                type   : 'POST',
+                url    : '${base.contextPath}/yfs/rent/activity/submit',
+                data   : kendo.stringify([data]),
+                success: function (data) {
+                    window.parent.$("#dialog").data("kendoWindow").close();
+                }
+            })
+        }
+    },
+    closeWin: function(e){
+        window.parent.$("#dialog").data("kendoWindow").close();
+    }
+    });
+
+</script>
+
+<div id="page-content">
+	<form id="mainform"  class="form-horizontal" method="post" enctype="application/json;charset=UTF-8">
+
+		<div class="row" style="margin-left: 5px;">
+			<div class="col-sm-12">
+				<div class="form-group">
+					<div class="col-sm-6">
+						<label class="col-sm-3 control-label">活动名称:</label>
+						<div class="col-sm-9">
+							<input type="text" required style="width:100%" name="eventName"
+							 data-label="活动名称" data-role="maskedtextbox"
+								   data-bind="enabled: model.isEnabled,value:model.eventName" class="k-textbox">
+							<span data-for="eventName" class=".k-invalid-msg"></span>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<label class="col-sm-3 control-label">管理员工:</label>
+						<div class="col-sm-9">
+							<input  id="privilege" type="text"   style="width:100%"  name="privilege"  data-bind="enabled: model.isStatus,value:model.privilege" class="k-textbox">
+                            <script>
+                              /*  $("#managingEmployees").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale,"LOV_YFS_DEMO")}));*/
+                                $("#privilege").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_YFS_DEMO")}, {
+                                    query: function (e) {
+                                        e.param['enabledFlag'] = 'Y';
+                                    },
+                                    textField: 'privilege',
+                                    model: viewModel.model,
+                                    change:function() {
+                                        var v = this.value();
+                                        if (v == undefined  || v == ""){
+
+                                        }else{
+                                            viewModel.model.set('roleId', this._dataItem.roleId);
+                                            /*$("#districtId").data("kendoLov").text("");*/
+                                        }
+                                    }
+                                }));
+							</script>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-6">
+						<label class="col-sm-3 control-label">发布日期:</label>
+						<div class="col-sm-9">
+							<input style="width:100%" id="releaseDate" name="releaseDate" data-bind="enabled: model.isStatus,value:model.releaseDate">
+							<span data-for="releaseDate" class=".k-invalid-msg"></span>
+						</div>
+						<script>
+                            $("#releaseDate").kendoDatePicker({
+                                change:function(){
+                                    var value = this.value();
+                                    if(!value){
+                                        value = initMinDate;
+                                    }
+                                    releaseEndDate.min(value);
+                                }
+                            }).data("kendoDatePicker");
+						</script>
+					</div>
+					<div class="col-sm-6">
+						<label class="col-sm-3 control-label">活动内容:</label>
+						<div class="col-sm-9">
+							<input  type="text" style="width:100%" name="activities" data-bind="enabled: model.isStatus,value:model.activities" class="k-textbox">
+							<span data-for="activities" class=".k-invalid-msg"></span>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<div class="col-sm-6">
+						<label class="col-sm-3 control-label">结束发布日:</label>
+						<div class="col-sm-9">
+							<input style="width:100%" id="releaseEndDate" name="releaseEndDate" data-bind="enabled: model.isStatus,value:model.releaseEndDate">
+							<span data-for="releaseEndDate" class=".k-invalid-msg"></span>
+						</div>
+						<script>
+                            $("#releaseEndDate").kendoDatePicker({
+                                change:function(){
+                                    var value = this.value();
+                                    if(!value){
+                                        value = initMaxDate;
+                                    }
+                                    releaseDate.max(value);
+                                }
+                            }).data("kendoDatePicker");;
+						</script>
+					</div>
+					<div class="col-sm-6">
+						<label class="col-sm-3 control-label">活动金额:</label>
+						<div class="col-sm-9">
+							<input type="number" style="width:100%" name="activityAmount" data-bind="enabled: model.isStatus,value:model.activityAmount" class="k-textbox">
+							<span data-for="activityAmount" class=".k-invalid-msg"></span>
+						</div>
+					</div>
+				</div>
+
+			<!--	<div class="form-group">
+					<div class="col-sm-6">
+						<label class="col-sm-3 control-label"><@spring.message "employee.enabledflag"/>:</label>
+						<div class="col-sm-9" style="text-align: left">
+							<input id="checkbox" type="checkbox" style="margin-top:5px"  name="enabledFlag" data-bind="value: model.enabledFlag" >
+						</div>
+						<script>
+                            $("#checkbox").kendoCheckbox({
+                                checkedValue: 'Y',
+                                uncheckedValue: 'N',
+                            });
+						</script>
+					</div>
+				</div>-->
+			</div>
+		</div>
+
+
+	</form>
+</div>
+<div id="mainBottom" class="text-right" style="bottom: 15px;position: fixed;  float: left;padding-top:15px;border-top:1px solid #ebebeb;width:100%; background: #fff;">
+	<span class="btn btn-default" data-bind="click:closeWin" type="button" style="margin-right:25px;">确定</span>
+</div>
+
+<script type="text/javascript">
+    kendo.bind($('#mainBottom'),viewModel);
+    kendo.bind($('#mainform'), viewModel);
+
+    function isNotEmpty(obj) {
+        if(obj != undefined && obj != null && obj != ""){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    var initMinDate = new Date(1900, 0, 1);
+    var initMaxDate = new Date(2099, 11, 31);
+    var releaseDate = $("#releaseDate").data("kendoDatePicker");
+    var releaseEndDate = $("#releaseEndDate").data("kendoDatePicker");
+debugger
+    if (employeeId!=0) {
+        $.ajax({
+            url: '${base.contextPath}/yfs/rent/activity/queryA?activityId=${RequestParameters.employeeId!0}',
+            success: function (args) {
+                var a0 = args.rows[0] || {};
+                for (var k in a0) {
+                    viewModel.model.set(k, a0[k]);
+                    isNotEmpty(viewModel.model.releaseDate) ? releaseDate.min(viewModel.model.releaseDate) : "";
+                    isNotEmpty(viewModel.model.releaseEndDate) ? releaseEndDate.max(viewModel.model.releaseEndDate) : "";
+                }
+            }
+        });
+    };
+
+</script>
+</body>
+</html>

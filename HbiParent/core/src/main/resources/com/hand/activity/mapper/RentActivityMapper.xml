@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hand.activity.mapper.RentActivityMapper">
+    <resultMap id="BaseResultMap" type="com.hand.activity.dto.RentActivity">
+        <result column="activity_id" property="activityId" jdbcType="DECIMAL" />
+        <result column="event_name" property="eventName" jdbcType="VARCHAR" />
+        <result column="release_date" property="releaseDate" jdbcType="DATE" />
+        <result column="release_end_date" property="releaseEndDate" jdbcType="DATE" />
+        <result column="active_status" property="activeStatus" jdbcType="VARCHAR" />
+        <result column="activities" property="activities" jdbcType="VARCHAR" />
+        <result column="privilege_role" property="privilegeRole" jdbcType="VARCHAR" />
+        <result column="createdByBy" property="createdByBy" jdbcType="VARCHAR" />
+        <result column="createTime" property="createTime" jdbcType="DATE" />
+
+        <result column="managing_employees" property="managingEmployees" jdbcType="VARCHAR" />
+        <result column="activity_amount" property="activityAmount" jdbcType="DECIMAL" />
+    </resultMap>
+
+    <select id="selectRentActivity"  resultMap="BaseResultMap" parameterType="com.hand.activity.dto.RentActivity" >
+      select
+      y.activity_id,
+      y.event_name,
+      y.CREATION_DATE createTime,
+      y.REQUEST_ID,
+      y.PROGRAM_ID,
+     (select USER_NAME from  sys_user sys where y.CREATED_BY=sys.USER_ID ) createdByBy,
+      y.OBJECT_VERSION_NUMBER,
+      y.LAST_UPDATED_BY,
+      y.LAST_UPDATE_DATE,
+      y.LAST_UPDATE_LOGIN,
+      y.release_date,
+      y.release_end_date,
+      y.active_status,
+      y.activities,
+      (select `NAME` from  hr_employee hr where hr.EMPLOYEE_CODE=y.managing_employees  ) privilege,
+      y.managing_employees,
+      y.activity_amount
+      from yfs_rent_activity y
+        <where>
+           <if test="eventName != null and eventName !=''  ">
+               y.event_name like concat("%",#{eventName},"%")
+            </if>
+            <if test="activityId != null and activityId !=''  ">
+               and  y.`activity_id`=#{activityId}
+            </if>
+            <if test="releaseDate != null  or releaseEndDate != null  ">
+                and y.CREATION_DATE BETWEEN #{releaseDate} and #{releaseEndDate}
+            </if>
+            and active_status !="end"
+
+        </where>
+
+
+    </select>
+    <select id="selectRentActivityAA"  resultMap="BaseResultMap" parameterType="com.hand.activity.dto.RentActivity" >
+        select
+        y.activity_id,
+        y.event_name,
+        y.CREATION_DATE createTime,
+        y.REQUEST_ID,
+        y.PROGRAM_ID,
+        (select USER_NAME from  sys_user sys where y.CREATED_BY=sys.USER_ID ) createdByBy,
+        y.OBJECT_VERSION_NUMBER,
+        y.LAST_UPDATED_BY,
+        y.LAST_UPDATE_DATE,
+        y.LAST_UPDATE_LOGIN,
+        y.release_date,
+        y.release_end_date,
+        y.active_status,
+        y.activities,
+        (select `NAME` from  hr_employee hr where hr.EMPLOYEE_CODE=y.managing_employees  ) privilege,
+        y.managing_employees,
+        y.activity_amount
+        from yfs_rent_activity y
+        <where>
+            <if test="eventName != null and eventName !=''  ">
+                y.event_name like concat("%",#{eventName},"%")
+            </if>
+            <if test="activityId != null and activityId !=''  ">
+                and  y.`activity_id`=#{activityId}
+            </if>
+            <if test="releaseDate != null  or releaseEndDate != null  ">
+                and y.CREATION_DATE BETWEEN #{releaseDate} and #{releaseEndDate}
+            </if>
+                and active_status ="end"
+        </where>
+
+
+    </select>
+    <update id="updateActiveStatus" >
+            update yfs_rent_activity
+            set active_status=#{activeStatus}
+            where
+            activity_id=#{activityId}
+
+      </update>
+
+    <update id="updateByTimeActiveStatus" >
+            update yfs_rent_activity
+            set active_status="announcing"
+            where
+            active_status="examination_passed"
+            and   now()> release_date
+      </update>
+    <update id="updateByTimeActiveStatusaa" >
+            update yfs_rent_activity
+            set active_status="end"
+            where
+            active_status="announcing"
+            and   now()> release_end_date
+      </update>
+
+    <select id="selectStartActivity" resultMap="BaseResultMap" parameterType="com.hand.activity.dto.RentActivity">
+ select
+        y.activity_id,
+        y.event_name,
+        y.CREATION_DATE createTime,
+        y.REQUEST_ID,
+        y.PROGRAM_ID,
+        (select USER_NAME from  sys_user sys where y.CREATED_BY=sys.USER_ID ) createdByBy,
+        y.OBJECT_VERSION_NUMBER,
+        y.LAST_UPDATED_BY,
+        y.LAST_UPDATE_DATE,
+        y.LAST_UPDATE_LOGIN,
+        y.release_date,
+        y.release_end_date,
+        y.active_status,
+        y.activities,
+        (select `NAME` from  hr_employee hr where hr.EMPLOYEE_CODE=y.managing_employees  ) privilege,
+        y.managing_employees,
+        y.activity_amount
+        from yfs_rent_activity y
+        where
+            active_status="announcing"
+            and   now()> release_date
+    </select>
+
+    <select id="selectEndActivity" resultMap="BaseResultMap" parameterType="com.hand.activity.dto.RentActivity">
+ select
+        y.activity_id,
+        y.event_name,
+        y.CREATION_DATE createTime,
+        y.REQUEST_ID,
+        y.PROGRAM_ID,
+        (select USER_NAME from  sys_user sys where y.CREATED_BY=sys.USER_ID ) createdByBy,
+        y.OBJECT_VERSION_NUMBER,
+        y.LAST_UPDATED_BY,
+        y.LAST_UPDATE_DATE,
+        y.LAST_UPDATE_LOGIN,
+        y.release_date,
+        y.release_end_date,
+        y.active_status,
+        y.activities,
+        (select `NAME` from  hr_employee hr where hr.EMPLOYEE_CODE=y.managing_employees  ) privilege,
+        y.managing_employees,
+        y.activity_amount
+        from yfs_rent_activity y
+        where
+            active_status="end"
+            and   now()> release_date
+    </select>
+
+    <select id="selectRuleName" parameterType="com.hand.activity.dto.RentActivity" resultType="String">
+SELECT ROLE_NAME FROM `sys_role_b` WHERE ROLE_ID IN(  SELECT  ROLE_ID  FROM  `sys_user_role` WHERE USER_ID=#{activityId})
+    </select>
+<select id="selectClientName" parameterType="com.hand.activity.dto.RentActivity"  resultType="String">
+SELECT FILE_PATH FROM `sys_file` WHERE ATTACHMENT_ID IN(  SELECT  ATTACHMENT_ID FROM `sys_attachment` WHERE SOURCE_KEY=#{activityId})
+</select>
+
+
+
+</mapper>

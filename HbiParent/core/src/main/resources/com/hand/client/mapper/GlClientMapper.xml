@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hand.client.mapper.GlClientMapper">
+    <resultMap id="BaseResultMap" type="com.hand.client.dto.GlClient">
+        <result column="gl_client_id" property="glClientId" jdbcType="DECIMAL"/>
+        <result column="activity_id" property="activityId" jdbcType="DECIMAL"/>
+        <result column="client_id" property="clientId" jdbcType="DECIMAL"/>
+        <result column="application_status" property="applicationStatus" jdbcType="VARCHAR"/>
+        <result column="application_date" property="applicationDate" jdbcType="DATE"/>
+    </resultMap>
+
+    <update id="GLClientbyID" >
+            update yfs_gl_client yfs
+            set
+                yfs.application_status = #{applicationStatus}
+            where
+            yfs.gl_client_id = #{glClientId}
+    </update>
+
+
+    <insert id="GLClientbytpye">
+     insert  into
+     yfs_gl_client
+     (
+     client_id,
+      activity_id,
+     application_status,
+     application_date
+     )
+     values
+     (#{clientId},
+     #{activityId},
+      #{applicationStatus},
+      #{applicationDate})
+
+    </insert>
+
+    <select id="selectAllGLClient" resultMap="BaseResultMap" parameterType="com.hand.client.dto.GlClient">
+        select aa.* from (
+        SELECT
+        gl.gl_client_id,
+        gl.client_id,
+        (SELECT client_name FROM yfs_client yfs WHERE yfs.client_id=gl.client_id  )AS clientby,
+        gl.activity_id,
+        (SELECT event_name FROM yfs_rent_activity rent WHERE rent.activity_id=gl.activity_id )AS activityname,
+        (SELECT active_status FROM yfs_rent_activity rent WHERE rent.activity_id=gl.activity_id) AS active_status,
+        gl.application_status,
+        gl.application_date
+        FROM yfs_gl_client gl
+        <where>
+            <if  test="glClientId != null and glClientId !=''  ">
+                gl.gl_client_id= #{glClientId}
+            </if>
+
+
+
+        </where>
+        ) as aa
+        WHERE
+        active_status!="end"
+
+
+
+    </select>
+
+</mapper>
